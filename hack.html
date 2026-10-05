@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Smart College Notice System</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#f4f7fb;
+    color:#222;
+    transition:0.3s;
+}
+
+header{
+    background:linear-gradient(135deg,#16213e,#0f3460);
+    color:white;
+    padding:25px;
+    text-align:center;
+}
+
+header h1{
+    font-size:32px;
+}
+
+header p{
+    margin-top:8px;
+}
+
+nav{
+    background:white;
+    padding:15px;
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+    box-shadow:0 2px 10px #ccc;
+}
+
+button{
+    border:none;
+    padding:11px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    background:#0f3460;
+    color:white;
+    font-weight:bold;
+}
+
+button:hover{
+    transform:scale(1.03);
+}
+
+.container{
+    width:92%;
+    max-width:1100px;
+    margin:25px auto;
+}
+
+.dashboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.card{
+    background:white;
+    padding:22px;
+    border-radius:15px;
+    box-shadow:0 4px 15px #ddd;
+}
+
+.card h2{
+    color:#0f3460;
+}
+
+.search-area{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+input,select,textarea{
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    width:100%;
+}
+
+.search-area input{
+    flex:1;
+    min-width:220px;
+}
+
+.notices{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+}
+
+.notice{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 4px 15px #ddd;
+    border-left:6px solid #0f3460;
+}
+
+.notice.important{
+    border-left-color:#e63946;
+}
+
+.notice h3{
+    margin-bottom:10px;
+    color:#0f3460;
+}
+
+.badge{
+    display:inline-block;
+    background:#e8f1ff;
+    color:#0f3460;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+    margin-bottom:10px;
+}
+
+.important .badge{
+    background:#ffe5e5;
+    color:#d00000;
+}
+
+.notice p{
+    line-height:1.5;
+    margin:8px 0;
+}
+
+.notice small{
+    color:#666;
+}
+
+.panel{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 4px 15px #ddd;
+    margin-top:30px;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:6px;
+    font-weight:bold;
+}
+
+#teacherPanel{
+    display:none;
+}
+
+footer{
+    text-align:center;
+    padding:25px;
+    margin-top:40px;
+    background:#16213e;
+    color:white;
+}
+
+/* DARK MODE */
+
+.dark{
+    background:#101820;
+    color:white;
+}
+
+.dark nav,
+.dark .card,
+.dark .notice,
+.dark .panel{
+    background:#1b263b;
+    color:white;
+}
+
+.dark .notice h3,
+.dark .card h2{
+    color:#64b5f6;
+}
+
+.dark input,
+.dark select,
+.dark textarea{
+    background:#26354a;
+    color:white;
+    border-color:#555;
+}
+
+.dark small{
+    color:#ccc;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🎓 Smart College Notice System</h1>
+    <p>One Platform • All College Notices • Never Miss an Update</p>
+</header>
+
+<nav>
+    <button onclick="showStudent()">👨‍🎓 Student Dashboard</button>
+    <button onclick="showTeacher()">👨‍🏫 Teacher Panel</button>
+    <button onclick="toggleDark()">🌙 Dark Mode</button>
+</nav>
+
+<div class="container">
+
+<!-- STUDENT DASHBOARD -->
+
+<section id="studentPanel">
+
+    <div class="dashboard">
+
+        <div class="card">
+            <h2 id="totalNotices">0</h2>
+            <p>Total Notices</p>
+        </div>
+
+        <div class="card">
+            <h2 id="importantCount">0</h2>
+            <p>Important Notices</p>
+        </div>
+
+        <div class="card">
+            <h2 id="examCount">0</h2>
+            <p>Exam Notices</p>
+        </div>
+
+        <div class="card">
+            <h2>🔔</h2>
+            <p>Stay Updated</p>
+        </div>
+
+    </div>
+
+    <div class="search-area">
+
+        <input
+        type="text"
+        id="search"
+        placeholder="🔎 Search notice..."
+        onkeyup="displayNotices()">
+
+        <select id="category" onchange="displayNotices()">
+            <option value="All">All Categories</option>
+            <option value="Exam">Exam</option>
+            <option value="Fees">Fees</option>
+            <option value="Event">Event</option>
+            <option value="Scholarship">Scholarship</option>
+            <option value="Academic">Academic</option>
+        </select>
+
+    </div>
+
+    <div class="notices" id="noticeContainer"></div>
+
+</section>
+
+
+<!-- TEACHER PANEL -->
+
+<section id="teacherPanel">
+
+    <div class="panel">
+
+        <h2>👨‍🏫 Teacher / Admin Panel</h2>
+
+        <p style="margin:10px 0 20px;">
+            Add a new college notice from here.
+        </p>
+
+        <div class="form-group">
+            <label>Notice Title</label>
+            <input
+            type="text"
+            id="noticeTitle"
+            placeholder="Example: B.Tech Semester Exam">
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+
+            <select id="noticeCategory">
+
+                <option value="Exam">Exam</option>
+                <option value="Fees">Fees</option>
+                <option value="Event">Event</option>
+                <option value="Scholarship">Scholarship</option>
+                <option value="Academic">Academic</option>
+
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Notice Description</label>
+
+            <textarea
+            id="noticeDescription"
+            rows="5"
+            placeholder="Write notice details..."></textarea>
+        </div>
+
+        <div class="form-group">
+
+            <label>Deadline</label>
+
+            <input
+            type="date"
+            id="noticeDeadline">
+
+        </div>
+
+        <div class="form-group">
+
+            <label>
+                <input
+                type="checkbox"
+                id="important"
+                style="width:auto;">
+                Mark as Important
+            </label>
+
+        </div>
+
+        <button onclick="addNotice()">
+            ➕ Publish Notice
+        </button>
+
+    </div>
+
+</section>
+
+</div>
+
+
+<footer>
+
+    <h3>Smart College Notice System</h3>
+
+    <p>Developed for SHEAT Hackathon 2026</p>
+
+    <p>Think it. Build it. Show it. 🚀</p>
+
+</footer>
+
+
+<script>
+
+/* SAMPLE NOTICES */
+
+let notices = [
+
+{
+    title:"B.Tech Semester Examination",
+    category:"Exam",
+    description:"B.Tech students are informed to check the examination schedule and prepare accordingly.",
+    deadline:"2026-10-20",
+    important:true
+},
+
+{
+    title:"Scholarship Form Submission",
+    category:"Scholarship",
+    description:"Students are requested to complete their scholarship form before the last date.",
+    deadline:"2026-10-15",
+    important:true
+},
+
+{
+    title:"Hackathon 2026",
+    category:"Event",
+    description:"SHEAT Hackathon 2026 will be conducted on 9 October 2026.",
+    deadline:"2026-10-09",
+    important:true
+},
+
+{
+    title:"Library Book Return",
+    category:"Academic",
+    description:"Students should return issued library books before the due date.",
+    deadline:"2026-10-12",
+    important:false
+},
+
+{
+    title:"College Fee Notice",
+    category:"Fees",
+    description:"Students are requested to check their fee status and complete pending payments.",
+    deadline:"2026-10-25",
+    important:false
+}
+
+];
+
+
+/* DISPLAY NOTICES */
+
+function displayNotices(){
+
+    let container =
+    document.getElementById("noticeContainer");
+
+    let search =
+    document.getElementById("search").value.toLowerCase();
+
+    let category =
+    document.getElementById("category").value;
+
+    container.innerHTML="";
+
+    let filtered = notices.filter(function(notice){
+
+        let searchMatch =
+        notice.title.toLowerCase().includes(search) ||
+        notice.description.toLowerCase().includes(search);
+
+        let categoryMatch =
+        category === "All" ||
+        notice.category === category;
+
+        return searchMatch && categoryMatch;
+
+    });
+
+
+    filtered.forEach(function(notice){
+
+        let div =
+        document.createElement("div");
+
+        div.className =
+        notice.important
+        ? "notice important"
+        : "notice";
+
+
+        div.innerHTML = `
+
+            <span class="badge">
+                ${notice.category}
+            </span>
+
+            ${notice.important
+            ? '<span class="badge">⚠️ Important</span>'
+            : ''}
+
+            <h3>
+                ${notice.title}
+            </h3>
+
+            <p>
+                ${notice.description}
+            </p>
+
+            <small>
+                📅 Deadline: ${notice.deadline}
+            </small>
+
+        `;
+
+        container.appendChild(div);
+
+    });
+
+
+    updateDashboard();
+
+}
+
+
+/* ADD NOTICE */
+
+function addNotice(){
+
+    let title =
+    document.getElementById("noticeTitle").value;
+
+    let category =
+    document.getElementById("noticeCategory").value;
+
+    let description =
+    document.getElementById("noticeDescription").value;
+
+    let deadline =
+    document.getElementById("noticeDeadline").value;
+
+    let important =
+    document.getElementById("important").checked;
+
+
+    if(
+        title === "" ||
+        description === "" ||
+        deadline === ""
+    ){
+
+        alert("⚠️ Please fill all fields.");
+
+        return;
+
+    }
+
+
+    notices.unshift({
+
+        title:title,
+        category:category,
+        description:description,
+        deadline:deadline,
+        important:important
+
+    });
+
+
+    alert("✅ Notice published successfully!");
+
+
+    document.getElementById("noticeTitle").value="";
+    document.getElementById("noticeDescription").value="";
+    document.getElementById("noticeDeadline").value="";
+    document.getElementById("important").checked=false;
+
+
+    showStudent();
+
+    displayNotices();
+
+}
+
+
+/* DASHBOARD COUNTER */
+
+function updateDashboard(){
+
+    document.getElementById("totalNotices").innerText =
+    notices.length;
+
+
+    document.getElementById("importantCount").innerText =
+    notices.filter(n => n.important).length;
+
+
+    document.getElementById("examCount").innerText =
+    notices.filter(n => n.category === "Exam").length;
+
+}
+
+
+/* PANEL SWITCH */
+
+function showStudent(){
+
+    document.getElementById("studentPanel").style.display="block";
+
+    document.getElementById("teacherPanel").style.display="none";
+
+}
+
+
+function showTeacher(){
+
+    document.getElementById("studentPanel").style.display="none";
+
+    document.getElementById("teacherPanel").style.display="block";
+
+}
+
+
+/* DARK MODE */
+
+function toggleDark(){
+
+    document.body.classList.toggle("dark");
+
+}
+
+
+/* START */
+
+displayNotices();
+
+</script>
+
+</body>
+</html>
